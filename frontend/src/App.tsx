@@ -7,7 +7,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Layout, Typography, Space, message, Spin, Alert } from 'antd';
+import { Layout, Typography, Space, message, Spin, Alert, Button, Slider, Modal, Row, Col } from 'antd';
 import './App.css';
 import { OrderBookTable } from './components/OrderBook/OrderBookTable';
 import { OrderBookTradeSummary } from './components/OrderBook/OrderBookTradeSummary';
@@ -31,6 +31,23 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [apiError, setApiError] = useState<string | null>(null);
   const [showErrorAlert, setShowErrorAlert] = useState(true);
+  
+  // Simulation state
+  const [isSimulating, setIsSimulating] = useState(false);
+  const [simulationInterval, setSimulationInterval] = useState<NodeJS.Timeout | null>(null);
+  const [showSimulationConfig, setShowSimulationConfig] = useState(false);
+  
+  // Simulation configuration
+  const [simulationConfig, setSimulationConfig] = useState({
+    interval: 2000, // milliseconds
+    smallOrderProbability: 70, // percentage
+    smallOrderMin: 10,
+    smallOrderMax: 210,
+    largeOrderMin: 200,
+    largeOrderMax: 1000,
+    priceBase: 100,
+    priceVariation: 5
+  });
 
   // WebSocket connection for real-time updates
   const { isConnected, lastMessage, sendMessage } = useWebSocket('ws://localhost:8080/ws');
@@ -120,6 +137,89 @@ function App() {
     }
   };
 
+  // Generate random order for simulation using current configuration
+  const generateRandomOrder = () => {
+    const types = ['BUY', 'SELL'];
+    const type = types[Math.floor(Math.random() * types.length)];
+    
+    // Use configured probability for small vs large orders
+    const isSmallOrder = Math.random() < (simulationConfig.smallOrderProbability / 100);
+    const quantity = isSmallOrder
+      ? Math.floor(Math.random() * (simulationConfig.smallOrderMax - simulationConfig.smallOrderMin)) + simulationConfig.smallOrderMin
+      : Math.floor(Math.random() * (simulationConfig.largeOrderMax - simulationConfig.largeOrderMin)) + simulationConfig.largeOrderMin;
+    
+    // Price range based on configuration
+    const priceVariation = (Math.random() - 0.5) * simulationConfig.priceVariation * 2; // -variation to +variation
+    const price = simulationConfig.priceBase + priceVariation;
+    
+    return {
+      type,
+      quantity,
+      price: Math.round(price * 100) / 100, // Round to 2 decimal places
+      client_id: `sim_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`
+    };
+  };
+
+  // Submit simulated order
+  const submitSimulatedOrder = async () => {
+    try {
+      const order = generateRandomOrder();
+      await apiService.submitOrder(order);
+      
+      // Refresh data after submission
+      const [updatedOrderBook, updatedTrades] = await Promise.all([
+        apiService.getOrderBook(),
+        apiService.getTrades()
+      ]);
+      
+      setOrderBook(updatedOrderBook);
+      setTrades(updatedTrades);
+    } catch (error) {
+      console.error('Failed to submit simulated order:', error);
+    }
+  };
+
+  // Start/stop simulation
+  const toggleSimulation = () => {
+    if (isSimulating) {
+      // Stop simulation
+      if (simulationInterval) {
+        clearInterval(simulationInterval);
+        setSimulationInterval(null);
+      }
+      setIsSimulating(false);
+      message.info('Simulation stopped');
+    } else {
+      // Start simulation with configured interval
+      const interval = setInterval(submitSimulatedOrder, simulationConfig.interval);
+      setSimulationInterval(interval);
+      setIsSimulating(true);
+      message.success(`Simulation started - generating orders every ${simulationConfig.interval / 1000}s`);
+    }
+  };
+
+  // Reset order book and trades
+  const resetData = async () => {
+    try {
+      // Clear current data
+      setOrderBook({ buy_orders: [], sell_orders: [] });
+      setTrades([]);
+      message.success('Data reset successfully');
+    } catch (error) {
+      console.error('Failed to reset data:', error);
+      message.error('Failed to reset data');
+    }
+  };
+
+  // Cleanup simulation on unmount
+  useEffect(() => {
+    return () => {
+      if (simulationInterval) {
+        clearInterval(simulationInterval);
+      }
+    };
+  }, [simulationInterval]);
+
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -134,7 +234,35 @@ function App() {
         <Title level={3} style={{ color: 'white', margin: 0 }}>
           Trading Engine
         </Title>
-        <Space />
+        <Space>
+          {isSimulating && (
+            <span style={{ color: '#52c41a', fontSize: '12px' }}>
+              🔄 Generating orders every {simulationConfig.interval / 1000}s
+            </span>
+          )}
+          <Button 
+            size="small"
+            onClick={() => setShowSimulationConfig(!showSimulationConfig)}
+            disabled={isSimulating}
+          >
+            ⚙️ Config
+          </Button>
+          <Button 
+            size="small"
+            onClick={resetData}
+            disabled={isSimulating}
+          >
+            🔄 Reset
+          </Button>
+          <Button 
+            type={isSimulating ? "default" : "primary"}
+            danger={isSimulating}
+            onClick={toggleSimulation}
+            disabled={!!apiError}
+          >
+            {isSimulating ? 'Stop Simulation' : 'Start Simulation'}
+          </Button>
+        </Space>
       </Header>
       
       <Layout>
@@ -173,6 +301,7 @@ function App() {
                   style={{ marginBottom: '8px' }}
                 />
               )}
+
               
               {/* Top section: Trading Activity & Market Overview (fixed height) */}
               <div style={{ flex: '0 0 240px', width: '100%' }}>
@@ -219,6 +348,168 @@ function App() {
           )}
         </Content>
       </Layout>
+
+      {/* Simulation Configuration Modal */}
+      <Modal
+        title="⚙️ Simulation Configuration"
+        open={showSimulationConfig}
+        onCancel={() => setShowSimulationConfig(false)}
+        footer={[
+          <Button key="cancel" onClick={() => setShowSimulationConfig(false)}>
+            Cancel
+          </Button>,
+          <Button key="ok" type="primary" onClick={() => setShowSimulationConfig(false)}>
+            OK
+          </Button>
+        ]}
+        width={800}
+        style={{ top: 20 }}
+      >
+        <Row gutter={[24, 24]}>
+          <Col span={12}>
+            <div>
+              <Typography.Text strong>Generation Speed:</Typography.Text>
+              <div style={{ marginTop: 8 }}>
+                <Slider
+                  min={500}
+                  max={10000}
+                  step={500}
+                  value={simulationConfig.interval}
+                  onChange={(value) => setSimulationConfig(prev => ({ ...prev, interval: value }))}
+                  marks={{
+                    500: '0.5s',
+                    2000: '2s',
+                    5000: '5s',
+                    10000: '10s'
+                  }}
+                />
+                <div style={{ textAlign: 'center', marginTop: 4, fontSize: '12px', color: '#666' }}>
+                  Current: {simulationConfig.interval / 1000}s
+                </div>
+              </div>
+            </div>
+          </Col>
+          <Col span={12}>
+            <div>
+              <Typography.Text strong>Small Order Probability:</Typography.Text>
+              <div style={{ marginTop: 8 }}>
+                <Slider
+                  min={0}
+                  max={100}
+                  value={simulationConfig.smallOrderProbability}
+                  onChange={(value) => setSimulationConfig(prev => ({ ...prev, smallOrderProbability: value }))}
+                  marks={{
+                    0: '0%',
+                    50: '50%',
+                    100: '100%'
+                  }}
+                />
+                <div style={{ textAlign: 'center', marginTop: 4, fontSize: '12px', color: '#666' }}>
+                  Current: {simulationConfig.smallOrderProbability}%
+                </div>
+              </div>
+            </div>
+          </Col>
+          <Col span={12}>
+            <div>
+              <Typography.Text strong>Small Orders Range:</Typography.Text>
+              <div style={{ marginTop: 8 }}>
+                <div style={{ marginBottom: 8 }}>
+                  <Typography.Text type="secondary" style={{ fontSize: '12px' }}>Min: {simulationConfig.smallOrderMin}</Typography.Text>
+                  <Slider
+                    min={1}
+                    max={500}
+                    value={simulationConfig.smallOrderMin}
+                    onChange={(value) => setSimulationConfig(prev => ({ ...prev, smallOrderMin: value }))}
+                    style={{ marginTop: 4 }}
+                  />
+                </div>
+                <div>
+                  <Typography.Text type="secondary" style={{ fontSize: '12px' }}>Max: {simulationConfig.smallOrderMax}</Typography.Text>
+                  <Slider
+                    min={1}
+                    max={500}
+                    value={simulationConfig.smallOrderMax}
+                    onChange={(value) => setSimulationConfig(prev => ({ ...prev, smallOrderMax: value }))}
+                    style={{ marginTop: 4 }}
+                  />
+                </div>
+              </div>
+            </div>
+          </Col>
+          <Col span={12}>
+            <div>
+              <Typography.Text strong>Large Orders Range:</Typography.Text>
+              <div style={{ marginTop: 8 }}>
+                <div style={{ marginBottom: 8 }}>
+                  <Typography.Text type="secondary" style={{ fontSize: '12px' }}>Min: {simulationConfig.largeOrderMin}</Typography.Text>
+                  <Slider
+                    min={100}
+                    max={2000}
+                    value={simulationConfig.largeOrderMin}
+                    onChange={(value) => setSimulationConfig(prev => ({ ...prev, largeOrderMin: value }))}
+                    style={{ marginTop: 4 }}
+                  />
+                </div>
+                <div>
+                  <Typography.Text type="secondary" style={{ fontSize: '12px' }}>Max: {simulationConfig.largeOrderMax}</Typography.Text>
+                  <Slider
+                    min={100}
+                    max={2000}
+                    value={simulationConfig.largeOrderMax}
+                    onChange={(value) => setSimulationConfig(prev => ({ ...prev, largeOrderMax: value }))}
+                    style={{ marginTop: 4 }}
+                  />
+                </div>
+              </div>
+            </div>
+          </Col>
+          <Col span={12}>
+            <div>
+              <Typography.Text strong>Base Price:</Typography.Text>
+              <div style={{ marginTop: 8 }}>
+                <Slider
+                  min={50}
+                  max={150}
+                  value={simulationConfig.priceBase}
+                  onChange={(value) => setSimulationConfig(prev => ({ ...prev, priceBase: value }))}
+                  marks={{
+                    50: '$50',
+                    100: '$100',
+                    150: '$150'
+                  }}
+                />
+                <div style={{ textAlign: 'center', marginTop: 4, fontSize: '12px', color: '#666' }}>
+                  Current: ${simulationConfig.priceBase}
+                </div>
+              </div>
+            </div>
+          </Col>
+          <Col span={12}>
+            <div>
+              <Typography.Text strong>Price Variation:</Typography.Text>
+              <div style={{ marginTop: 8 }}>
+                <Slider
+                  min={0.5}
+                  max={20}
+                  step={0.5}
+                  value={simulationConfig.priceVariation}
+                  onChange={(value) => setSimulationConfig(prev => ({ ...prev, priceVariation: value }))}
+                  marks={{
+                    0.5: '±0.5',
+                    5: '±5',
+                    10: '±10',
+                    20: '±20'
+                  }}
+                />
+                <div style={{ textAlign: 'center', marginTop: 4, fontSize: '12px', color: '#666' }}>
+                  Current: ±{simulationConfig.priceVariation}
+                </div>
+              </div>
+            </div>
+          </Col>
+        </Row>
+      </Modal>
     </Layout>
   );
 }
