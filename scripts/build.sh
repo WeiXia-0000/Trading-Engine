@@ -14,7 +14,10 @@ cd ../..
 # Build frontend
 echo "Building React frontend..."
 cd frontend
-npm install
+if [ ! -d "node_modules" ]; then
+    echo "Installing frontend dependencies..."
+    npm install
+fi
 npm run build
 cd ..
 

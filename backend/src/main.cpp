@@ -1,39 +1,104 @@
-#include "order_book.h"
-#include <chrono>
-using namespace std;
-using namespace order;
-using namespace order_book;
+/**
+ * Trading Engine Main Application
+ * 
+ * Initializes and starts both HTTP API server and WebSocket server for the trading engine.
+ * Handles graceful shutdown on SIGINT/SIGTERM signals.
+ */
 
-inline uint64_t NowNs() {
-    return std::chrono::duration_cast<std::chrono::nanoseconds>(
-        std::chrono::steady_clock::now().time_since_epoch()
-    ).count();
+#include "api/http_server.h"
+#include "api/trading_api.h"
+#include "websocket/websocket_server.h"
+#include <iostream>
+#include <signal.h>
+#include <memory>
+#include <thread>
+
+// Global server instances for signal handling
+std::unique_ptr<api::HttpServer> server;
+std::unique_ptr<api::TradingApi> trading_api;
+std::unique_ptr<websocket::WebSocketServer> ws_server;
+
+// Signal handler for graceful shutdown
+void signal_handler(int signal) {
+    std::cout << "\nReceived signal " << signal << ", shutting down..." << std::endl;
+    if (server) {
+        server->stop();
+    }
+    if (ws_server) {
+        ws_server->stop();
+    }
+    exit(0);
 }
 
 int main() {
-    OrderBook order_book;
-
-    Order order1 = {1, OrderType::BUY, 20, 100.0, "client1", NowNs()};
-    Order order2 = {2, OrderType::SELL, 15, 99.0, "client2", NowNs()};
-    Order order3 = {3, OrderType::BUY, 100, 98.0, "client3", NowNs()};
-    Order order4 = {4, OrderType::SELL, 50, 97.0, "client4", NowNs()};
-    Order order5 = {5, OrderType::BUY, 30, 101.0, "client5", NowNs()};
-    Order order6 = {6, OrderType::SELL, 60, 96.0, "client6", NowNs()};
-
-    order_book.add_order(order1);
-    order_book.match_orders();  
-    order_book.add_order(order2);
-    order_book.match_orders();
-    order_book.add_order(order3);
-    order_book.match_orders();
-    order_book.add_order(order4);
-    order_book.match_orders();
-    order_book.add_order(order5);
-    order_book.match_orders();
-    order_book.add_order(order6);
-    order_book.match_orders();
-
-    order_book.print_order_book();
-
+    // Set up signal handlers for graceful shutdown
+    signal(SIGINT, signal_handler);
+    signal(SIGTERM, signal_handler);
+    
+    try {
+        // Initialize trading API with order book
+        trading_api = std::make_unique<api::TradingApi>();
+        
+        // Create HTTP server for REST API
+        server = std::make_unique<api::HttpServer>(8080);
+        
+        // Create WebSocket server for real-time updates
+        ws_server = std::make_unique<websocket::WebSocketServer>(8081);
+        
+        // Register REST API routes
+        server->add_route("GET", "/api/orderbook", 
+                         [&](const api::HttpRequest& req) { 
+                             return trading_api->get_order_book(req); 
+                         });
+        
+        server->add_route("GET", "/api/trades", 
+                         [&](const api::HttpRequest& req) { 
+                             return trading_api->get_trades(req); 
+                         });
+        
+        server->add_route("POST", "/api/orders", 
+                         [&](const api::HttpRequest& req) { 
+                             return trading_api->submit_order(req); 
+                         });
+        
+        server->add_route("GET", "/api/market-summary", 
+                         [&](const api::HttpRequest& req) { 
+                             return trading_api->get_market_summary(req); 
+                         });
+        
+        // Health check endpoint for monitoring
+        server->add_route("GET", "/health", 
+                         [](const api::HttpRequest& req) {
+                             api::HttpResponse response;
+                             response.body = "{\"status\": \"healthy\"}";
+                             return response;
+                         });
+        
+        // Start both servers
+        server->start();
+        ws_server->start();
+        
+        // Display server information
+        std::cout << "Trading Engine API Server is running on port 8080" << std::endl;
+        std::cout << "WebSocket Server is running on port 8081" << std::endl;
+        std::cout << "Available endpoints:" << std::endl;
+        std::cout << "  GET  /api/orderbook     - Get current order book" << std::endl;
+        std::cout << "  GET  /api/trades        - Get trade history" << std::endl;
+        std::cout << "  POST /api/orders        - Submit new order" << std::endl;
+        std::cout << "  GET  /api/market-summary - Get market statistics" << std::endl;
+        std::cout << "  GET  /health            - Health check" << std::endl;
+        std::cout << "  WS   ws://localhost:8081/ws - WebSocket connection" << std::endl;
+        std::cout << "\nPress Ctrl+C to stop the server" << std::endl;
+        
+        // Keep server running indefinitely
+        while (true) {
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+        }
+        
+    } catch (const std::exception& e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+        return 1;
+    }
+    
     return 0;
 }

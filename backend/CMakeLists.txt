@@ -19,9 +19,20 @@ endif()
 
 # Find required packages
 find_package(Threads REQUIRED)
+find_package(OpenSSL REQUIRED)
+
+# Set OpenSSL paths for macOS
+if(APPLE)
+    set(OPENSSL_ROOT_DIR "/opt/homebrew/opt/openssl@3")
+    set(OPENSSL_INCLUDE_DIR "/opt/homebrew/opt/openssl@3/include")
+    set(OPENSSL_LIBRARIES "/opt/homebrew/opt/openssl@3/lib")
+endif()
 
 # Include directories
 include_directories(${CMAKE_SOURCE_DIR}/src)
+if(APPLE)
+    include_directories(/opt/homebrew/opt/openssl@3/include)
+endif()
 
 # Order Book Library
 set(ORDER_BOOK_SOURCES
@@ -30,18 +41,42 @@ set(ORDER_BOOK_SOURCES
     src/order_book/trade.h
 )
 
+# API Library
+set(API_SOURCES
+    src/api/http_server.cpp
+    src/api/trading_api.cpp
+    src/utils/json_utils.cpp
+)
+
+# WebSocket Library
+set(WEBSOCKET_SOURCES
+    src/websocket/websocket_server.cpp
+)
+
 add_library(order_book_lib ${ORDER_BOOK_SOURCES})
+add_library(api_lib ${API_SOURCES})
+add_library(websocket_lib ${WEBSOCKET_SOURCES})
 
 # Main Trading Engine Server
 add_executable(trading_engine
     src/main.cpp
     ${ORDER_BOOK_SOURCES}
+    ${API_SOURCES}
+    ${WEBSOCKET_SOURCES}
 )
 
 target_link_libraries(trading_engine 
     order_book_lib 
+    websocket_lib
     Threads::Threads
+    OpenSSL::SSL
+    OpenSSL::Crypto
 )
+
+# Set library paths for macOS
+if(APPLE)
+    target_link_directories(trading_engine PRIVATE /opt/homebrew/opt/openssl@3/lib)
+endif()
 
 # Benchmark executable
 add_executable(benchmark

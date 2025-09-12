@@ -22,6 +22,11 @@ namespace order_book {
         void match_orders();
         void print_order_book() const;
         
+        // Public accessors for API
+        const map<double, deque<Order>, greater<double>>& get_buy_orders() const { return buy_orders; }
+        const map<double, deque<Order>>& get_sell_orders() const { return sell_orders; }
+        const vector<Trade>& get_trades() const { return trades; }
+        
 
         private:
         int trade_id = 0;
