@@ -1,0 +1,10 @@
+
+===== Benchmark Config =====
+Compile Flags : -std=c++17 -O3 -march=native -DNDEBUG -flto
+Total Orders  : 1000000
+Mid Price     : 100
+Half Spread   : 1
+Logging       : OFF
+Throughput    : 1.46004e+07 orders/sec
+============================
+
