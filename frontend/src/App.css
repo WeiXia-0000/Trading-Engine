@@ -1,0 +1,124 @@
+/* Custom styles for Trading Engine */
+
+/* Order Book Table Styles */
+.best-bid-row {
+  background-color: #f6ffed !important;
+  border-left: 3px solid #52c41a !important;
+}
+
+.best-ask-row {
+  background-color: #fff2f0 !important;
+  border-left: 3px solid #ff4d4f !important;
+}
+
+/* Trade History Row Styles */
+.trade-row-even {
+  background-color: #fafafa;
+}
+
+.trade-row-odd {
+  background-color: #ffffff;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Table hover effects */
+.ant-table-tbody > tr:hover > td {
+  background-color: #e6f7ff !important;
+}
+
+/* Card shadows */
+.ant-card {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+.ant-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  transition: box-shadow 0.3s ease;
+}
+
+/* Header styles */
+.ant-layout-header {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Sidebar styles */
+.ant-layout-sider {
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Button animations */
+.ant-btn {
+  transition: all 0.3s ease;
+}
+
+.ant-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Form input focus effects */
+.ant-input:focus,
+.ant-input-number:focus,
+.ant-select-focused .ant-select-selector {
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+/* Tag styles */
+.ant-tag {
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+/* Statistic styles */
+.ant-statistic-title {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.ant-statistic-content {
+  font-weight: 600;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .ant-layout-sider {
+    display: none;
+  }
+  
+  .ant-col {
+    margin-bottom: 16px;
+  }
+}
+
+/* Loading spinner */
+.ant-spin-nested-loading > .ant-spin {
+  max-height: none;
+}
+
+/* Alert styles */
+.ant-alert {
+  border-radius: 6px;
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}

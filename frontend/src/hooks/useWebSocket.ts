@@ -1,3 +1,10 @@
+/**
+ * WebSocket Hook
+ * 
+ * Provides WebSocket connection management with automatic reconnection,
+ * message handling, and connection state tracking for real-time data updates.
+ */
+
 import { useEffect, useRef, useState } from 'react';
 
 export interface WebSocketMessage {
@@ -35,7 +42,6 @@ export const useWebSocket = (url: string) => {
         setIsConnected(false);
         setSocket(null);
         
-        // Reconnect after 3 seconds
         reconnectTimeoutRef.current = setTimeout(() => {
           connect();
         }, 3000);

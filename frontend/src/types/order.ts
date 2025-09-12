@@ -1,3 +1,10 @@
+/**
+ * Order Type Definitions
+ * 
+ * Defines the data structures for orders, order book levels, and the complete order book.
+ * Used throughout the application for type safety and data consistency.
+ */
+
 export enum OrderType {
   BUY = 'BUY',
   SELL = 'SELL'

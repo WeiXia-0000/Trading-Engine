@@ -1,3 +1,10 @@
+/**
+ * Trade Type Definitions
+ * 
+ * Defines the data structure for executed trades, including trade identifiers,
+ * quantities, prices, and timestamps for trade history tracking.
+ */
+
 export interface Trade {
   trade_id: number;
   buy_order_id: number;
