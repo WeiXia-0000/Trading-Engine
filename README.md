@@ -1,163 +1,235 @@
-# Trading Engine
+# Trading Engine - High-Performance Order Book System
 
-A high-performance C++ order book system with React frontend for real-time trading visualization.
+<div align="center">
 
-## 🚀 Features
+![Trading Engine Preview](docs/preview.png)
+
+*A modern, high-performance trading engine with real-time order book visualization*
+
+[![C++](https://img.shields.io/badge/C++-17-blue.svg)](https://en.cppreference.com/w/cpp/17)
+[![React](https://img.shields.io/badge/React-18-61dafb.svg)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178c6.svg)](https://www.typescriptlang.org/)
+[![CMake](https://img.shields.io/badge/CMake-3.20+-064f8c.svg)](https://cmake.org/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
+</div>
+
+## 🚀 Overview
+
+This project implements a high-performance trading engine with a modern web-based frontend for real-time order book visualization and trading simulation. The system features a C++ backend optimized for speed and a React frontend with intuitive trading interfaces.
+
+### ✨ Key Features
 
 - **High-Performance Order Book**: C++ implementation with optimized data structures
-- **Real-time Visualization**: React frontend with WebSocket integration
-- **Order Matching**: Price-time priority matching algorithm
-- **Live Updates**: Real-time order book and trade updates
-- **Modern UI**: Clean, responsive interface built with Ant Design
+- **Real-Time WebSocket Communication**: Live updates between frontend and backend
+- **Interactive Trading Interface**: Modern React-based UI with Ant Design components
+- **Configurable Simulation**: Customizable order generation with various parameters
+- **Market Visualization**: Real-time charts and statistics
+- **RESTful API**: Complete HTTP API for order management
+- **Cross-Platform**: Runs on macOS, Linux, and Windows
+
+## 📸 Screenshots
+
+<div align="center">
+
+### Main Trading Interface
+![Main Interface](docs/main-interface.png)
+
+*Real-time order book visualization with trading activity overview*
+
+### Simulation Configuration
+![Simulation Config](docs/simulation-config.png)
+
+*Configurable order simulation with slider-based controls*
+
+### Order Book Details
+![Order Book](docs/order-book.png)
+
+*Detailed buy/sell order display with market depth*
+
+</div>
 
 ## 🏗️ Architecture
 
 ```
 ┌─────────────────┐    WebSocket/HTTP    ┌─────────────────┐
-│   React Frontend │ ◄─────────────────► │   C++ Backend   │
+│   React Frontend │ ◄──────────────────► │   C++ Backend   │
 │                 │                      │                 │
-│ • Order Book UI │                      │ • Order Matching│
-│ • Trade History │                      │ • WebSocket API │
-│ • Real-time     │                      │ • HTTP API      │
+│ • Order Book UI │                      │ • Order Book    │
+│ • Trade History │                      │ • HTTP Server   │
+│ • Order Form    │                      │ • WebSocket     │
+│ • Simulation    │                      │ • JSON Utils    │
 └─────────────────┘                      └─────────────────┘
 ```
 
-## 🛠️ Tech Stack
+### Backend Components
+
+- **Order Book Engine**: High-performance order matching and management
+- **HTTP Server**: RESTful API for order operations
+- **WebSocket Server**: Real-time data streaming
+- **JSON Utilities**: Lightweight JSON parsing and serialization
+- **Trading API**: Order processing and market data endpoints
+
+### Frontend Components
+
+- **Trading Dashboard**: Real-time market overview with circular progress indicators
+- **Order Book Table**: Side-by-side buy/sell order display
+- **Order Form**: Interactive order submission with validation
+- **Trade History**: Recent trade tracking with statistics
+- **Simulation Panel**: Configurable order generation system
+
+## 🛠️ Technology Stack
 
 ### Backend
-- **C++17** with CMake build system
-- **Optimized Performance**: LTO, march=native, O3 optimization
-- **WebSocket Support**: Real-time data streaming
-- **HTTP API**: RESTful endpoints
+- **C++17**: Core trading engine implementation
+- **CMake**: Build system with optimization flags
+- **Custom HTTP Server**: Lightweight HTTP implementation
+- **WebSocket**: Real-time communication protocol
+- **OpenSSL**: Secure WebSocket connections
 
 ### Frontend
-- **React 18** with TypeScript
-- **Vite** for fast development and building
-- **Ant Design** for UI components
-- **WebSocket** for real-time updates
-
-## 📦 Project Structure
-
-```
-Trading-Engine/
-├── backend/                 # C++ Backend
-│   ├── src/
-│   │   ├── order_book/     # Core order book logic
-│   │   └── main.cpp        # Server entry point
-│   ├── tests/              # Tests and benchmarks
-│   └── CMakeLists.txt      # Build configuration
-├── frontend/               # React Frontend
-│   ├── src/
-│   │   ├── components/     # React components
-│   │   ├── hooks/          # Custom hooks
-│   │   └── types/          # TypeScript definitions
-│   └── package.json        # Dependencies
-└── scripts/                # Build and deployment
-```
+- **React 18**: Modern UI framework
+- **TypeScript**: Type-safe development
+- **Ant Design**: Professional UI components
+- **Vite**: Fast development and build tool
+- **WebSocket API**: Real-time data updates
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-- C++17 compatible compiler (GCC 7+, Clang 5+, MSVC 2017+)
-- CMake 3.16+
-- Node.js 16+ and npm
 
-### Build and Run
+- **C++17 Compiler** (GCC 7+, Clang 5+, or MSVC 2017+)
+- **CMake 3.20+**
+- **Node.js 16+** and **npm**
+- **OpenSSL** (for WebSocket support)
+
+### Installation
 
 1. **Clone the repository**
-```bash
-git clone https://github.com/WeiXia-0000/Trading-Engine.git
-cd Trading-Engine
-```
+   ```bash
+   git clone https://github.com/WeiXia-0000/Trading-Engine.git
+   cd Trading-Engine
+   ```
 
-2. **Build the project**
-```bash
-chmod +x scripts/build.sh
-./scripts/build.sh
-```
+2. **Build the backend**
+   ```bash
+   cd backend
+   mkdir build && cd build
+   cmake -DCMAKE_BUILD_TYPE=Release ..
+   make -j$(nproc)
+   ```
 
-3. **Start the services**
-```bash
-chmod +x scripts/start.sh
-./scripts/start.sh
-```
+3. **Install frontend dependencies**
+   ```bash
+   cd ../../frontend
+   npm install
+   ```
 
-4. **Access the application**
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:8080
+### Running the Application
 
-## 📊 Performance
+1. **Start the backend server**
+   ```bash
+   cd backend/build
+   ./trading_engine
+   ```
+   The server will start on `http://localhost:8080`
 
-- **Order Processing**: Sub-microsecond latency
-- **Memory Efficient**: Optimized data structures
-- **Scalable**: Handles thousands of orders per second
-- **Real-time**: WebSocket updates with minimal delay
+2. **Start the frontend development server**
+   ```bash
+   cd frontend
+   npm run dev
+   ```
+   The frontend will be available at `http://localhost:3000`
 
-## 🔧 Development
+3. **Access the application**
+   Open your browser and navigate to `http://localhost:3000`
 
-### Backend Development
-```bash
-cd backend
-mkdir build && cd build
-cmake ..
-make
-./trading_engine
-```
+## 📊 Performance Features
 
-### Frontend Development
-```bash
-cd frontend
-npm install
-npm run dev
-```
+### Backend Optimizations
+- **Link-Time Optimization (LTO)**: Maximum performance compilation
+- **Native Architecture**: `-march=native` for CPU-specific optimizations
+- **Aggressive Optimization**: `-O3` with `-DNDEBUG` for release builds
+- **Thread-Safe Operations**: Mutex-protected order book access
+- **Memory-Efficient Data Structures**: Optimized for high-frequency trading
 
-### Running Tests
+### Frontend Optimizations
+- **Real-Time Updates**: WebSocket-based live data streaming
+- **Efficient Rendering**: React optimization with proper state management
+- **Responsive Design**: Single-window layout with no scrolling
+- **Configurable Simulation**: Adjustable parameters for realistic testing
+
+## 🔧 Configuration
+
+### Simulation Parameters
+
+The trading simulation can be configured through the web interface:
+
+- **Generation Speed**: 0.5s - 10s intervals
+- **Order Size Distribution**: Small vs large order probability
+- **Price Range**: Base price and variation settings
+- **Order Types**: Configurable buy/sell ratios
+
+### API Endpoints
+
+- `GET /api/orderbook` - Get current order book
+- `GET /api/trades` - Get recent trade history
+- `POST /api/orders` - Submit new order
+- `GET /api/market-summary` - Get market statistics
+- `GET /api/health` - Health check endpoint
+
+## 🧪 Testing
+
+### Backend Testing
 ```bash
 cd backend/build
 ./benchmark
 ```
 
-## 📈 Order Book Algorithm
+### Frontend Testing
+```bash
+cd frontend
+npm run test
+```
 
-The order book uses a price-time priority matching algorithm:
+## 📈 Benchmark Results
 
-1. **Price Priority**: Orders are sorted by price (best price first)
-2. **Time Priority**: Same price orders follow FIFO (First In, First Out)
-3. **Automatic Matching**: Compatible orders are matched automatically
-4. **Trade Recording**: All executed trades are recorded with full details
+The system is designed for high-performance trading scenarios:
 
-### Data Structures
-- **Buy Orders**: `std::map<double, std::deque<Order>, std::greater<double>>`
-- **Sell Orders**: `std::map<double, std::deque<Order>>`
-- **Order Index**: `std::unordered_map<int, std::pair<double, iterator>>`
+- **Order Processing**: Sub-millisecond order matching
+- **Memory Usage**: Optimized for minimal memory footprint
+- **Concurrent Access**: Thread-safe operations for multiple clients
+- **Real-Time Updates**: Low-latency WebSocket communication
 
-## 🌐 API Endpoints
+## 🤝 Contributing
 
-### HTTP API
-- `GET /api/orderbook` - Get current order book state
-- `POST /api/orders` - Submit new order
-- `DELETE /api/orders/:id` - Cancel order
-
-### WebSocket
-- `ws://localhost:8080/ws` - Real-time order book updates
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## 📝 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🤝 Contributing
+## 👨‍💻 Author
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📞 Contact
-
+**WeiXia**
 - GitHub: [@WeiXia-0000](https://github.com/WeiXia-0000)
-- Project Link: [https://github.com/WeiXia-0000/Trading-Engine](https://github.com/WeiXia-0000/Trading-Engine)
+
+## 🙏 Acknowledgments
+
+- Built with modern C++ and React best practices
+- Inspired by real-world trading system architectures
+- Uses industry-standard optimization techniques
 
 ---
 
-⭐ Star this repository if you found it helpful!
+<div align="center">
+
+**⭐ Star this repository if you found it helpful!**
+
+[Report Bug](https://github.com/WeiXia-0000/Trading-Engine/issues) · [Request Feature](https://github.com/WeiXia-0000/Trading-Engine/issues) · [Documentation](docs/)
+
+</div>
