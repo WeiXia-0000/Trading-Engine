@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Trading Engine Preview](docs/preview.png)
+![Trading Engine Preview](docs/demo_pic.png)
 
 *A modern, high-performance trading engine with real-time order book visualization*
 
@@ -10,13 +10,14 @@
 [![React](https://img.shields.io/badge/React-18-61dafb.svg)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178c6.svg)](https://www.typescriptlang.org/)
 [![CMake](https://img.shields.io/badge/CMake-3.20+-064f8c.svg)](https://cmake.org/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 </div>
 
 ## 🚀 Overview
 
-This project implements a high-performance trading engine with a modern web-based frontend for real-time order book visualization and trading simulation. The system features a C++ backend optimized for speed and a React frontend with intuitive trading interfaces.
+This is a **personal learning project** that implements a high-performance trading engine with a modern web-based frontend for real-time order book visualization and trading simulation. The system features a C++ backend optimized for speed and a React frontend with intuitive trading interfaces.
+
+*This project is for educational and demonstration purposes only.*
 
 ### ✨ Key Features
 
@@ -27,25 +28,15 @@ This project implements a high-performance trading engine with a modern web-base
 - **Market Visualization**: Real-time charts and statistics
 - **RESTful API**: Complete HTTP API for order management
 - **Cross-Platform**: Runs on macOS, Linux, and Windows
+- **Educational Focus**: Designed for learning modern software development practices
 
-## 📸 Screenshots
+## 📸 Project Demo
 
 <div align="center">
 
-### Main Trading Interface
-![Main Interface](docs/main-interface.png)
+![Trading Engine Demo](docs/demo_pic.png)
 
-*Real-time order book visualization with trading activity overview*
-
-### Simulation Configuration
-![Simulation Config](docs/simulation-config.png)
-
-*Configurable order simulation with slider-based controls*
-
-### Order Book Details
-![Order Book](docs/order-book.png)
-
-*Detailed buy/sell order display with market depth*
+*Complete trading engine interface showing real-time order book, trading activity, and simulation controls*
 
 </div>
 
@@ -53,7 +44,7 @@ This project implements a high-performance trading engine with a modern web-base
 
 ```
 ┌─────────────────┐    WebSocket/HTTP    ┌─────────────────┐
-│   React Frontend │ ◄──────────────────► │   C++ Backend   │
+│  React Frontend │ ◄──────────────────► │   C++ Backend   │
 │                 │                      │                 │
 │ • Order Book UI │                      │ • Order Book    │
 │ • Trade History │                      │ • HTTP Server   │
@@ -192,6 +183,17 @@ cd frontend
 npm run test
 ```
 
+## 📚 Learning Objectives
+
+This project demonstrates:
+
+- **C++ Performance Optimization**: Link-time optimization, native architecture targeting
+- **Modern React Development**: Hooks, TypeScript, component architecture
+- **Real-Time Communication**: WebSocket implementation and HTTP API design
+- **System Architecture**: Microservices communication patterns
+- **Build Systems**: CMake configuration and optimization
+- **UI/UX Design**: Professional trading interface development
+
 ## 📈 Benchmark Results
 
 The system is designed for high-performance trading scenarios:
@@ -201,21 +203,11 @@ The system is designed for high-performance trading scenarios:
 - **Concurrent Access**: Thread-safe operations for multiple clients
 - **Real-Time Updates**: Low-latency WebSocket communication
 
-## 🤝 Contributing
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 👨‍💻 Author
 
-**WeiXia**
+**Wei Xia**
 - GitHub: [@WeiXia-0000](https://github.com/WeiXia-0000)
 
 ## 🙏 Acknowledgments
@@ -223,13 +215,14 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Built with modern C++ and React best practices
 - Inspired by real-world trading system architectures
 - Uses industry-standard optimization techniques
+- **Note**: This is a personal learning project for educational purposes
 
 ---
 
 <div align="center">
 
-**⭐ Star this repository if you found it helpful!**
+**⭐ Star this repository if you found it helpful for learning!**
 
-[Report Bug](https://github.com/WeiXia-0000/Trading-Engine/issues) · [Request Feature](https://github.com/WeiXia-0000/Trading-Engine/issues) · [Documentation](docs/)
+*This is a personal learning project - feel free to explore the code and learn from the implementation.*
 
 </div>
